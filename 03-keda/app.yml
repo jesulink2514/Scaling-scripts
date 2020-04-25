@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: order-processor
+  labels:
+    app: order-processor
+spec:
+  selector:
+    matchLabels:
+      app: order-processor
+  template:
+    metadata:
+      labels:
+        app: order-processor
+    spec:
+      containers:
+        - name: order-processor
+          image: kedasamples/sample-dotnet-worker-servicebus-queue
+          env:
+            - name: KEDA_SERVICEBUS_QUEUE_CONNECTIONSTRING
+              valueFrom:
+                secretKeyRef:
+                  name: secrets-order-consumer
+                  key: servicebus-connectionstring
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: secrets-order-consumer
+  labels:
+    app: order-processor
+data:
+  servicebus-connectionstring: <COLOCA_TU_CADENA_DE_AZURE_SERVICE_BUS_AQUI_EN_BASE64>

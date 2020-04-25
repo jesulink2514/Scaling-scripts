@@ -1,0 +1,46 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: sample01  
+  labels:
+    k8s-app: sample01  
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: sample01
+  template:
+    metadata:
+      name: sample01      
+      labels:
+        k8s-app: sample01
+    spec:
+      containers:
+        - name: sample01
+          image: docker.io/jesulink2514/simplestapi
+          ports:
+            - name: http
+              containerPort: 80
+              protocol: TCP                    
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: "kubernetes.io/role"
+                  operator: In
+                  values:
+                    - agent
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              preference:
+                  matchExpressions:
+                    - key: agentpool
+                      operator: In
+                      values:
+                        - agentpool
+      tolerations:
+        - key: virtual-kubelet.io/provider
+          operator: Exists
+        - key: azure.com/aci
+          effect: NoSchedule
